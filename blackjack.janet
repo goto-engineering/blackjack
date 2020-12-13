@@ -2,17 +2,24 @@
 
 (def cards [2 3 4 5 6 7 8 9 10 "J" "Q" "K" "A"])
 
-(defn card-value [card]
+# TODO: fix crash on empty shoe!
+
+(defn card-value [card mode]
   (cond 
-    (= card "A") 11
+    (= card "A") (if (= mode :hard) 11 1)
     (= (type card) :string) 10
     card))
 
-# fix aces
-(defn sum-hand [hand]
+(defn sum-hand-mode [hand mode]
   (->> hand
-       (map card-value)
+       (map |(card-value $ mode))
        sum))
+
+(defn sum-hand [hand]
+  (let [hard-sum (sum-hand-mode hand :hard)]
+    (if (> hard-sum 21)
+      (sum-hand-mode hand :soft)
+      hard-sum)))
 
 (defn shuffle [array]
   (let [shuffled-array @[]]
@@ -44,7 +51,6 @@
       (= (sum-hand hand) 21)
       (= (length hand) 2))))
 
-# fix AA case!
 (defn check-end-conditions [state]
   (cond
     (bust? state :player) :player-bust
@@ -79,6 +85,7 @@
   (print "Bet:    $" (state :bet))
   (print "You:    " (format-player-hand state) " (" (sum-hand (player-hand state))")")
   (print "Dealer: " (format-dealer-hand state) " (" (sum-hand (dealer-hand state)) ")")
+  (print "Cards:  " (length (get state :shoe)))
   (print))
 
 (defn get-player-input []
@@ -106,8 +113,7 @@
     (update state :bet |(* 2 $))))
 
 (defn player-move [state]
-  # show only available moves
-  # add splitting
+  # TODO: add splitting
   (print "(h)it (s)tand (d)ouble")
   (case (string/trim (get-player-input))
     "h" (hit state)
@@ -197,6 +203,7 @@
   (put-in state [:hands :player] @[])
   (put-in state [:hands :dealer] @[]))
 
+# TODO: blackjack pays 3 to 2
 (defn finish-hand [state]
   (print (end-message-for (check-win-conditions state)))
 
