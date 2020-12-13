@@ -130,7 +130,15 @@
           (player-move state))
     (player-move state)))
 
-# TODO: maybe don't let player bet more money than is in the bank?
+(defn validate-bet [input state]
+  (let [amount (scan-number input)]
+    (if
+      (and
+        (> amount 0)
+        (int? amount)
+        (>= (get state :bank) amount))
+      amount)))
+
 (defn get-bet! [state]
   (print-bank state)
   (print)
@@ -143,18 +151,18 @@
       (print "How much do you want to bet? (type `autobet <amount>` to set autobetting)")
       (let [input (get-player-input)]
         (if (string/has-prefix? "autobet" input)
-          (let [bet (scan-number (get (string/split " " input) 1))]
+          (let [bet (validate-bet (get (string/split " " input) 1) state)]
             (if bet
               (do
                 (put state :autobet bet)
                 (update state :bet |(+ $ bet)))
               (get-bet! state)))
-          (let [bet (scan-number input)]
+          (let [bet (validate-bet input state)]
             (if bet
               (do
                 (update state :bet |(+ $ bet)))
               (do
-                (print "Please enter a number")
+                (print "Please enter a positive integer that you can actually afford")
                 (get-bet! state)))))))))
 
 (defn end-message-for [condition]
