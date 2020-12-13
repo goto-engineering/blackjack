@@ -1,3 +1,5 @@
+# TODO: End the game if player runs out of money
+
 (def rng (math/rng (os/time)))
 
 (def cards [2 3 4 5 6 7 8 9 10 "J" "Q" "K" "A"])
@@ -258,5 +260,3 @@
       (play-hand state)
       (finish-hand state)))
     0)
-
-(main)
