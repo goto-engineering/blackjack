@@ -56,15 +56,21 @@
 (defn hand-over? [state]
   (truthy? (check-end-conditions state)))
 
+(defn player-hand [state]
+  (get-in state [:hands :player]))
+
+(defn dealer-hand [state]
+  (get-in state [:hands :dealer]))
+
 (defn format-player-hand [state]
-  (string/join (map string (get-in state [:hands :player])) " "))
+  (string/join (map string (player-hand state)) " "))
 
 (defn format-dealer-hand [state]
   (if
     (or (hand-over? state)
         (get state :stand))
-    (string/join (map string (get-in state [:hands :dealer])) " ")
-    (string (get-in state [:hands :dealer 0]) " _")))
+    (string/join (map string (dealer-hand state)) " ")
+    (string (first (dealer-hand state)) " _")))
 
 (defn print-bank [state]
   (print "Bank:   $" (state :bank)))
@@ -75,20 +81,15 @@
   (print "Dealer: " (format-dealer-hand state))
   (print))
 
-(def player-commands
-  (reverse @["5" "d" "h" "s"]))
-
 (defn get-player-input []
-  (if true
-    (do
-      (let [input (string/trim (getline "> "))]
-        (print)
-        input))
-    (if (empty? player-commands)
-      :exit
-      (let [input (array/pop player-commands)]
-        (print "> " input "\n")
-        input))))
+  (let [input (string/trim (getline "> "))]
+    (if
+      (or
+        (= input "cancel")
+        (= input ""))
+      (os/exit 1))
+    (print)
+    input))
 
 (defn deal [state who]
   (update-in state [:hands who] |(array/push $ (array/pop (state :shoe)))))
@@ -112,15 +113,21 @@
   (case (string/trim (get-player-input))
     "h" (hit state)
     "s" (stand state)
-    "d" (double state)))
+    "d" (double state)
+    (player-move state)))
 
 (defn get-bet! [state]
   (print-bank state)
   (print)
   (print "How much do you want to bet?")
   (let [bet (scan-number (get-player-input))]
-    (update state :bank |(- $ bet))
-    (update state :bet |(+ $ bet))))
+    (if bet
+      (do
+        (update state :bank |(- $ bet))
+        (update state :bet |(+ $ bet)))
+      (do
+        (print "Please enter a number")
+        (get-bet! state)))))
 
 (defn end-message-for [condition]
   (case condition
@@ -173,14 +180,14 @@
     (and
       (get state :stand)
       (>
-       (sum-hand (get-in state [:hands :player]))
-       (sum-hand (get-in state [:hands :dealer]))))))
+       (sum-hand (player-hand state))
+       (sum-hand (dealer-hand state))))))
 
 (defn check-win-conditions [state]
   (or
     (check-end-conditions state)
-    (let [dealer-count (sum-hand (get-in state [:hands :dealer]))
-          player-count (sum-hand (get-in state [:hands :player]))]
+    (let [player-count (sum-hand (player-hand state))
+          dealer-count (sum-hand (dealer-hand state))]
       (cond
         (> dealer-count player-count) :player-loses
         (< dealer-count player-count) :player-wins
