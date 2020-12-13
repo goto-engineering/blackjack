@@ -1,7 +1,9 @@
 (import argparse :prefix "")
 
 (def options
-  @{:show-totals false})
+  @{:show-totals false
+    :show-cards false
+    :decks 6})
 
 (def rng (math/rng (os/time)))
 
@@ -37,10 +39,10 @@
     (repeat (* n 4) (array/concat deck cards))
     (shuffle deck)))
 
-(def initial-state
+(defn initial-state []
   @{:bank 200
     :bet 0
-    :shoe (generate-decks 1)
+    :shoe (generate-decks (options :decks))
     :stand false
     :autobet nil
     :hands @{:player @[]
@@ -98,7 +100,8 @@
                (dealer-hand state)
                @[(get (dealer-hand state) 0)])]
     (print "Dealer: " (format-dealer-hand state) (total state :dealer)))
-  (print "Cards:  " (length (get state :shoe)))
+  (if (options :show-cards)
+    (print "Cards:  " (length (get state :shoe))))
   (print))
 
 (defn get-player-input []
@@ -116,7 +119,7 @@
   (if (empty? (state :shoe))
     (do
       (print "Shuffling cards..\n")
-      (put state :shoe (generate-decks 1)))))
+      (put state :shoe (generate-decks (options :decks))))))
 
 (defn hit [state]
   (deal state :player))
@@ -279,7 +282,7 @@
   (<= (get state :bank) 0))
 
 (defn run []
-  (let [state (table/clone initial-state)]
+  (let [state (table/clone (initial-state))]
     (while (not (bankrupt? state))
       (play-hand state)
       (finish-hand state))
@@ -290,9 +293,27 @@
   ["Play Blackjack in the console."
    "show-totals" {:kind :flag
                   :short "t"
-                  :help "Show hand totals for player and dealer"}])
+                  :help "Show hand totals for player and dealer."}
+   "show-cards" {:kind :flag
+                 :short "c"
+                 :help "Show numbers of cards remaining in the shoe."}
+   "decks" {:kind :option
+            :short "d"
+            :help "Set number of decks to use."}])
+
+(defn validate-int [input]
+  (let [number (scan-number input)]
+    (if
+      (and
+        (> number 0)
+        (int? number))
+      number)))
 
 (defn main [& args]
   (when-let [res (argparse ;argparse-params)]
     (put options :show-totals (res "show-totals"))
+    (put options :show-cards (res "show-cards"))
+    (if (res "decks")
+      (if-let [decks (validate-int (res "decks"))]
+        (put options :decks decks)))
     (run)))

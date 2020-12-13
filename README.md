@@ -21,6 +21,8 @@ Dealer stands on soft 17 and Blackjack pays 3-to-2.
 
 You can set autobetting if you don't care about entering a wager amount every hand. When asked for your betting amount, type `autobet 5` to set $5 as the automatic betting amount. You can later cancel your autobet by typing `c` when asked for your move.
 
+Flags are explained by running with `--help`.
+
 ## Missing
 
 Splitting is currently not implemented. Everything else should work.
