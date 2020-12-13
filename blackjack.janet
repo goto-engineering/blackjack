@@ -2,8 +2,6 @@
 
 (def cards [2 3 4 5 6 7 8 9 10 "J" "Q" "K" "A"])
 
-# TODO: fix crash on empty shoe!
-
 (defn card-value [card mode]
   (cond 
     (= card "A") (if (= mode :hard) 11 1)
@@ -99,7 +97,11 @@
     input))
 
 (defn deal [state who]
-  (update-in state [:hands who] |(array/push $ (array/pop (state :shoe)))))
+  (update-in state [:hands who] |(array/push $ (array/pop (state :shoe))))
+  (if (empty? (state :shoe))
+    (do
+      (print "Shuffling cards..\n")
+      (put state :shoe (generate-decks 1)))))
 
 (defn hit [state]
   (deal state :player))
@@ -203,6 +205,7 @@
   (put-in state [:hands :player] @[])
   (put-in state [:hands :dealer] @[]))
 
+# TODO: push is zero, not lose!
 (defn finish-hand [state]
   (print (end-message-for (check-win-conditions state)))
 
