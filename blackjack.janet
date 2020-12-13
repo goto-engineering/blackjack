@@ -1,0 +1,214 @@
+(def rng (math/rng (os/time)))
+
+(def cards [2 3 4 5 6 7 8 9 10 "J" "Q" "K" "A"])
+
+(defn card-value [card]
+  (cond 
+    (= card "A") 11
+    (= (type card) :string) 10
+    card))
+
+# fix aces
+(defn sum-hand [hand]
+  (->> hand
+       (map card-value)
+       sum))
+
+(defn shuffle [array]
+  (let [shuffled-array @[]]
+    (each item array
+      (array/insert shuffled-array
+                    (dec (math/rng-int rng (length shuffled-array)))
+                    item))
+    shuffled-array))
+
+(defn generate-decks [n]
+  (let [deck @[]]
+    (repeat (* n 4) (array/concat deck cards))
+    (shuffle deck)))
+
+(def initial-state
+  @{:bank 200
+    :bet 0
+    :shoe (generate-decks 1)
+    :stand false
+    :hands @{:player @[]
+             :dealer @[]}})
+
+(defn bust? [state who]
+  (> (sum-hand (get-in state [:hands who])) 21))
+
+(defn blackjack? [state who]
+  (let [hand (get-in state [:hands who])]
+    (and
+      (= (sum-hand hand) 21)
+      (= (length hand) 2))))
+
+# fix AA case!
+(defn check-end-conditions [state]
+  (cond
+    (bust? state :player) :player-bust
+    (bust? state :dealer) :dealer-bust
+    (blackjack? state :player) :player-blackjack
+    (blackjack? state :dealer) :dealer-blackjack
+    false))
+
+(defn hand-over? [state]
+  (truthy? (check-end-conditions state)))
+
+(defn format-player-hand [state]
+  (string/join (map string (get-in state [:hands :player])) " "))
+
+(defn format-dealer-hand [state]
+  (if
+    (or (hand-over? state)
+        (get state :stand))
+    (string/join (map string (get-in state [:hands :dealer])) " ")
+    (string (get-in state [:hands :dealer 0]) " _")))
+
+(defn print-bank [state]
+  (print "Bank:   $" (state :bank)))
+
+(defn print-gamestate [state]
+  (print "Bet:    $" (state :bet))
+  (print "You:    " (format-player-hand state))
+  (print "Dealer: " (format-dealer-hand state))
+  (print))
+
+(def player-commands
+  (reverse @["5" "d" "h" "s"]))
+
+(defn get-player-input []
+  (if true
+    (do
+      (let [input (string/trim (getline "> "))]
+        (print)
+        input))
+    (if (empty? player-commands)
+      :exit
+      (let [input (array/pop player-commands)]
+        (print "> " input "\n")
+        input))))
+
+(defn deal [state who]
+  (update-in state [:hands who] |(array/push $ (array/pop (state :shoe)))))
+
+(defn hit [state]
+  (deal state :player))
+
+(defn stand [state]
+  (put state :stand true))
+
+(defn double [state]
+  (let [amount (get state :bet)]
+    (put state :stand true)
+    (update state :bet |(* 2 $))
+    (update state :bank |(- $ amount))))
+
+(defn player-move [state]
+  # show only available moves
+  # add splitting
+  (print "(h)it (s)tand (d)ouble")
+  (case (string/trim (get-player-input))
+    "h" (hit state)
+    "s" (stand state)
+    "d" (double state)))
+
+(defn get-bet! [state]
+  (print-bank state)
+  (print)
+  (print "How much do you want to bet?")
+  (let [bet (scan-number (get-player-input))]
+    (update state :bank |(- $ bet))
+    (update state :bet |(+ $ bet))))
+
+(defn end-message-for [condition]
+  (case condition
+    :player-bust "You bust!"
+    :dealer-bust "Dealer busts!"
+    :player-blackjack "Blackjack!"
+    :dealer-blackjack "Dealer Blackjack!"
+    :player-wins "You win!"
+    :player-loses "You lose!"
+    :push "Push!"))
+
+(defn player-turn [state]
+  (forever
+    (player-move state)
+    (print-gamestate state)
+    (if
+      (or
+        (get state :stand)
+        (hand-over? state))
+      (break))))
+
+(defn dealer-turn [state]
+  (while (< (sum-hand (get-in state [:hands :dealer])) 17)
+    (deal state :dealer)
+    (print-gamestate state)))
+
+(defn deal-initial-cards [state]
+  (repeat 2
+          (deal state :player)
+          (deal state :dealer)))
+
+(defn game-over? [state]
+  (<= (state :bank) 0))
+
+(defn play-hand [state]
+  (get-bet! state)
+  (deal-initial-cards state)
+  (print-gamestate state)
+  (if (not (hand-over? state))
+    (player-turn state))
+  (if (not (hand-over? state))
+    (dealer-turn state)))
+
+(defn player-wins? [state]
+  (or
+    (let [end-condition (check-end-conditions state)]
+      (or
+        (= end-condition :dealer-bust)
+        (= end-condition :player-blackjack)))
+    (and
+      (get state :stand)
+      (>
+       (sum-hand (get-in state [:hands :player]))
+       (sum-hand (get-in state [:hands :dealer]))))))
+
+(defn check-win-conditions [state]
+  (or
+    (check-end-conditions state)
+    (let [dealer-count (sum-hand (get-in state [:hands :dealer]))
+          player-count (sum-hand (get-in state [:hands :player]))]
+      (cond
+        (> dealer-count player-count) :player-loses
+        (< dealer-count player-count) :player-wins
+        (= dealer-count player-count) :push))))
+
+(defn reset-hand [state]
+  (put state :bet 0)
+  (put state :stand false)
+  (put-in state [:hands :player] @[])
+  (put-in state [:hands :dealer] @[]))
+
+(defn finish-hand [state]
+  (print (end-message-for (check-win-conditions state)))
+
+  (let [bet (get state :bet)]
+    (if (player-wins? state) 
+      (do
+        (print "+$" bet)
+        (update state :bank |(+ $ bet)))
+      (print "-$" bet)))
+  (print)
+  (reset-hand state))
+
+(defn main [& args]
+  (let [state (table/clone initial-state)]
+    (forever 
+      (play-hand state)
+      (finish-hand state)))
+    0)
+
+(main)
