@@ -1,3 +1,5 @@
+# TODO: autobet an amount
+
 (def rng (math/rng (os/time)))
 
 (def cards [2 3 4 5 6 7 8 9 10 "J" "Q" "K" "A"])
@@ -205,23 +207,29 @@
   (put-in state [:hands :player] @[])
   (put-in state [:hands :dealer] @[]))
 
-# TODO: push is zero, not lose!
-(defn finish-hand [state]
-  (print (end-message-for (check-win-conditions state)))
-
+(defn bank-win [state]
   (let [bet (get state :bet)]
-    (if (player-wins? state)
-      (if (= (check-end-conditions state) :player-blackjack)
-        (do
-          (let [increased-bet (* 1.5 bet)]
-            (print "+$" increased-bet " - Blackjack pays 3-to-2")
-            (update state :bank |(+ $ increased-bet))))
-        (do
-          (print "+$" bet)
-          (update state :bank |(+ $ bet))))
+    (if (= (check-end-conditions state) :player-blackjack)
       (do
-        (print "-$" bet)
-        (update state :bank |(- $ bet)))))
+        (let [increased-bet (* 1.5 bet)]
+          (print "+$" increased-bet " - Blackjack pays 3-to-2")
+          (update state :bank |(+ $ increased-bet))))
+      (do
+        (print "+$" bet)
+        (update state :bank |(+ $ bet))))))
+
+(defn bank-lose [state]
+  (let [bet (get state :bet)]
+    (print "-$" bet)
+    (update state :bank |(- $ bet))))
+
+(defn finish-hand [state]
+  (let [end-state (check-win-conditions state)]
+    (print (end-message-for end-state))
+    (cond
+      (= end-state :push) :nothing
+      (player-wins? state) (bank-win state)
+      (bank-lose state)))
   (print)
   (reset-hand state))
 
