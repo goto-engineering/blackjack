@@ -123,7 +123,6 @@
   (let [bet (scan-number (get-player-input))]
     (if bet
       (do
-        (update state :bank |(- $ bet))
         (update state :bet |(+ $ bet)))
       (do
         (print "Please enter a number")
@@ -202,12 +201,12 @@
 (defn finish-hand [state]
   (print (end-message-for (check-win-conditions state)))
 
-  (let [bet (get state :bet)]
-    (if (player-wins? state) 
-      (do
-        (print "+$" bet)
-        (update state :bank |(+ $ bet)))
-      (print "-$" bet)))
+  (let [bet (get state :bet)
+        [op msg] (if (player-wins? state)
+                   [+ "+"]
+                   [- "-"])]
+    (print msg "$" bet)
+    (update state :bank |(op $ bet)))
   (print)
   (reset-hand state))
 
