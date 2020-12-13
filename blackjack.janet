@@ -1,3 +1,8 @@
+(import argparse :prefix "")
+
+(def options
+  @{:show-totals false})
+
 (def rng (math/rng (os/time)))
 
 (def cards [2 3 4 5 6 7 8 9 10 "J" "Q" "K" "A"])
@@ -70,20 +75,29 @@
 (defn format-player-hand [state]
   (string/join (map string (player-hand state)) " "))
 
+(defn hole-card-visible? [state]
+  (or (hand-over? state)
+      (get state :stand)))
+
 (defn format-dealer-hand [state]
-  (if
-    (or (hand-over? state)
-        (get state :stand))
+  (if (hole-card-visible? state)
     (string/join (map string (dealer-hand state)) " ")
     (string (first (dealer-hand state)) " _")))
 
 (defn print-bank [state]
   (print "Bank:   $" (state :bank)))
 
+(defn total [state who]
+  (if (options :show-totals)
+    (string " (" (sum-hand (get-in state [:hands who]))")")))
+
 (defn print-hand [state]
   (print "Bet:    $" (state :bet))
-  (print "You:    " (format-player-hand state) " (" (sum-hand (player-hand state))")")
-  (print "Dealer: " (format-dealer-hand state) " (" (sum-hand (dealer-hand state)) ")")
+  (print "You:    " (format-player-hand state) (total state :player))
+  (let [hand (if (hole-card-visible? state)
+               (dealer-hand state)
+               @[(get (dealer-hand state) 0)])]
+    (print "Dealer: " (format-dealer-hand state) (total state :dealer)))
   (print "Cards:  " (length (get state :shoe)))
   (print))
 
@@ -264,10 +278,21 @@
 (defn bankrupt? [state]
   (<= (get state :bank) 0))
 
-(defn main [& args]
+(defn run []
   (let [state (table/clone initial-state)]
     (while (not (bankrupt? state))
       (play-hand state)
       (finish-hand state))
     (print "You're out of money. Please play again soon.")
     0))
+
+(def argparse-params
+  ["Play Blackjack in the console."
+   "show-totals" {:kind :flag
+                  :short "t"
+                  :help "Show hand totals for player and dealer"}])
+
+(defn main [& args]
+  (when-let [res (argparse ;argparse-params)]
+    (put options :show-totals (res "show-totals"))
+    (run)))

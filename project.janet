@@ -1,7 +1,7 @@
 (declare-project
  :name "blackjack"
  :description "Play Blackjack"
- :dependencies [])
+ :dependencies ["https://github.com/janet-lang/argparse.git"])
 
 (declare-source
  :source ["blackjack.janet"])

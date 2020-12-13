@@ -6,7 +6,8 @@ A Blackjack implementation written in [Janet](https://janet-lang.org/). Runs in 
 
 1. Install Janet per the [instructions](https://janet-lang.org/docs/index.html).
 2. Clone this repo
-3. Run `janet blackjack.janet` to run in interpreted mode
+3. Run `jpm deps` to install dependencies to your Janet path
+4. Run `janet blackjack.janet` to run in interpreted mode
 
 ## Build
 
