@@ -1,5 +1,3 @@
-# TODO: End the game if player runs out of money
-
 (def rng (math/rng (os/time)))
 
 (def cards [2 3 4 5 6 7 8 9 10 "J" "Q" "K" "A"])
@@ -132,6 +130,7 @@
           (player-move state))
     (player-move state)))
 
+# TODO: maybe don't let player bet more money than is in the bank?
 (defn get-bet! [state]
   (print-bank state)
   (print)
@@ -254,9 +253,13 @@
   (print)
   (reset-hand state))
 
+(defn bankrupt? [state]
+  (<= (get state :bank) 0))
+
 (defn main [& args]
   (let [state (table/clone initial-state)]
-    (forever 
+    (while (not (bankrupt? state))
       (play-hand state)
-      (finish-hand state)))
-    0)
+      (finish-hand state))
+    (print "You're out of money. Please play again soon.")
+    0))

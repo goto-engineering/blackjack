@@ -23,5 +23,3 @@ You can set autobetting if you don't care about entering a wager amount every ha
 ## Missing
 
 Splitting is currently not implemented. Everything else should work.
-
-Player can currently get into the negative with his money.
