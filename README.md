@@ -1,10 +1,10 @@
 # Blackjack
 
-A Blackjack implementation written in (Janet)[https://janet-lang.org/]. Runs in the command line.
+A Blackjack implementation written in [Janet](https://janet-lang.org/). Runs in the command line.
 
 ## Install
 
-1. Install Janet per the (instructions)[https://janet-lang.org/docs/index.html].
+1. Install Janet per the [instructions](https://janet-lang.org/docs/index.html).
 2. Clone this repo
 3. Run `janet blackjack.janet` to run in interpreted mode
 
