@@ -203,14 +203,22 @@
   (put-in state [:hands :player] @[])
   (put-in state [:hands :dealer] @[]))
 
-# TODO: blackjack pays 3 to 2
 (defn finish-hand [state]
   (print (end-message-for (check-win-conditions state)))
 
-  (let [bet (get state :bet)
-        [op msg] (if (player-wins? state) [+ "+"] [- "-"])]
-    (print msg "$" bet)
-    (update state :bank |(op $ bet)))
+  (let [bet (get state :bet)]
+    (if (player-wins? state)
+      (if (= (check-end-conditions state) :player-blackjack)
+        (do
+          (let [increased-bet (* 1.5 bet)]
+            (print "+$" increased-bet " - Blackjack pays 3-to-2")
+            (update state :bank |(+ $ increased-bet))))
+        (do
+          (print "+$" bet)
+          (update state :bank |(+ $ bet))))
+      (do
+        (print "-$" bet)
+        (update state :bank |(- $ bet)))))
   (print)
   (reset-hand state))
 
