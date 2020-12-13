@@ -1,5 +1,3 @@
-# TODO: autobet an amount
-
 (def rng (math/rng (os/time)))
 
 (def cards [2 3 4 5 6 7 8 9 10 "J" "Q" "K" "A"])
@@ -39,6 +37,7 @@
     :bet 0
     :shoe (generate-decks 1)
     :stand false
+    :autobet nil
     :hands @{:player @[]
              :dealer @[]}})
 
@@ -117,25 +116,45 @@
     (update state :bet |(* 2 $))))
 
 (defn player-move [state]
+  (if (get state :autobet)
+    (print "(h)it (s)tand (d)ouble - (c)ancel autobet (starting next hand)")
+    (print "(h)it (s)tand (d)ouble"))
+
   # TODO: add splitting
-  (print "(h)it (s)tand (d)ouble")
   (case (string/trim (get-player-input))
     "h" (hit state)
     "s" (stand state)
     "d" (double state)
+    "c" (do
+          (put state :autobet nil)
+          (player-move state))
     (player-move state)))
 
 (defn get-bet! [state]
   (print-bank state)
   (print)
-  (print "How much do you want to bet?")
-  (let [bet (scan-number (get-player-input))]
-    (if bet
+  (if (get state :autobet)
+    (let [bet (get state :autobet)]
       (do
-        (update state :bet |(+ $ bet)))
-      (do
-        (print "Please enter a number")
-        (get-bet! state)))))
+        (print "Autobetting $" bet "\n")
+        (update state :bet |(+ $ bet))))
+    (do
+      (print "How much do you want to bet? (type `autobet <amount>` to set autobetting)")
+      (let [input (get-player-input)]
+        (if (string/has-prefix? "autobet" input)
+          (let [bet (scan-number (get (string/split " " input) 1))]
+            (if bet
+              (do
+                (put state :autobet bet)
+                (update state :bet |(+ $ bet)))
+              (get-bet! state)))
+          (let [bet (scan-number input)]
+            (if bet
+              (do
+                (update state :bet |(+ $ bet)))
+              (do
+                (print "Please enter a number")
+                (get-bet! state)))))))))
 
 (defn end-message-for [condition]
   (case condition
