@@ -75,10 +75,10 @@
 (defn print-bank [state]
   (print "Bank:   $" (state :bank)))
 
-(defn print-gamestate [state]
+(defn print-hand [state]
   (print "Bet:    $" (state :bet))
-  (print "You:    " (format-player-hand state))
-  (print "Dealer: " (format-dealer-hand state))
+  (print "You:    " (format-player-hand state) " (" (sum-hand (player-hand state))")")
+  (print "Dealer: " (format-dealer-hand state) " (" (sum-hand (dealer-hand state)) ")")
   (print))
 
 (defn get-player-input []
@@ -103,8 +103,7 @@
 (defn double [state]
   (let [amount (get state :bet)]
     (put state :stand true)
-    (update state :bet |(* 2 $))
-    (update state :bank |(- $ amount))))
+    (update state :bet |(* 2 $))))
 
 (defn player-move [state]
   # show only available moves
@@ -141,7 +140,7 @@
 (defn player-turn [state]
   (forever
     (player-move state)
-    (print-gamestate state)
+    (print-hand state)
     (if
       (or
         (get state :stand)
@@ -151,7 +150,7 @@
 (defn dealer-turn [state]
   (while (< (sum-hand (get-in state [:hands :dealer])) 17)
     (deal state :dealer)
-    (print-gamestate state)))
+    (print-hand state)))
 
 (defn deal-initial-cards [state]
   (repeat 2
@@ -164,7 +163,7 @@
 (defn play-hand [state]
   (get-bet! state)
   (deal-initial-cards state)
-  (print-gamestate state)
+  (print-hand state)
   (if (not (hand-over? state))
     (player-turn state))
   (if (not (hand-over? state))
@@ -202,9 +201,7 @@
   (print (end-message-for (check-win-conditions state)))
 
   (let [bet (get state :bet)
-        [op msg] (if (player-wins? state)
-                   [+ "+"]
-                   [- "-"])]
+        [op msg] (if (player-wins? state) [+ "+"] [- "-"])]
     (print msg "$" bet)
     (update state :bank |(op $ bet)))
   (print)
