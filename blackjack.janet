@@ -107,9 +107,7 @@
 (defn get-player-input []
   (let [input (string/trim (getline "> "))]
     (if
-      (or
-        (= input "cancel")
-        (= input ""))
+      (= input "cancel")
       (os/exit 1))
     (print)
     input))
