@@ -23,6 +23,13 @@ You can set autobetting if you don't care about entering a wager amount every ha
 
 Flags are explained by running with `--help`.
 
-## Missing
+## Known issues
 
-Splitting is currently not implemented. Everything else should work.
+1. Splitting is currently not implemented.
+2. Doubling down is not implemented correctly - you currently do not get a card, just stand.
+3. Soft hands aren't always calculated correctly.
+4. No insurance.
+5. Burn card is missing after shuffle.
+6. Can't adjust Blackjack pay, fixed at 3-to-2.
+7. Can't configure dealer to hit on soft 17.
+8. Dealer Blackjack vs. Player Blackjack should be a push - and maybe configurable.

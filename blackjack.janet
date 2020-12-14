@@ -135,7 +135,6 @@
     (print "(h)it (s)tand (d)ouble - (c)ancel autobet (starting next hand)")
     (print "(h)it (s)tand (d)ouble"))
 
-  # TODO: add splitting
   (case (string/trim (get-player-input))
     "h" (hit state)
     "s" (stand state)
