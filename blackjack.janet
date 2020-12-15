@@ -11,20 +11,16 @@
 
 (defn card-value [card]
   (cond 
-    (= card "A") 11
+    (= card "A") 1
     (= (type card) :string) 10
     card))
 
 (defn sum-hand [hand]
-  (reduce
-    (fn [sum value]
-      (if (< value 11)
-        (+ sum value)
-        (if (> (+ sum 11) 21)
-          (+ sum 1)
-          (+ sum 11))))
-    0
-    (map card-value (sort (array/slice hand)))))
+  (def contains-ace? (truthy? (index-of "A" hand)))
+  (def count (sum (map card-value (sort (array/slice hand)))))
+  (if (and contains-ace?  (<= (+ 10 count) 21))
+    (+ count 10)
+    count))
 
 (defn shuffle [array]
   (let [shuffled-array @[]]

@@ -33,3 +33,4 @@ Flags are explained by running with `--help`.
 1. Can't adjust Blackjack pay, fixed at 3-to-2.
 2. Can't configure dealer to hit on soft 17.
 3. Insurance.
+4. Count number of hands played.
