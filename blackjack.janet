@@ -17,14 +17,14 @@
 
 (defn sum-hand [hand]
   (reduce
-    (fn [sum card]
-      (if (< (card-value card) 11)
-        (+ sum (card-value card))
+    (fn [sum value]
+      (if (< value 11)
+        (+ sum value)
         (if (> (+ sum 11) 21)
           (+ sum 1)
           (+ sum 11))))
     0
-    (sort (array/slice hand))))
+    (map card-value (sort (array/slice hand)))))
 
 (defn shuffle [array]
   (let [shuffled-array @[]]
