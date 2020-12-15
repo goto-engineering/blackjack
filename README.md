@@ -26,11 +26,11 @@ Flags are explained by running with `--help`.
 ## Known issues
 
 1. Splitting is currently not implemented.
-2. Burn card is missing after shuffle.
 
 ## Nice to have features
 
-1. Can't adjust Blackjack pay, fixed at 3-to-2.
-2. Can't configure dealer to hit on soft 17.
-3. Insurance.
-4. Count number of hands played.
+1. Configure Blackjack payout
+2. Configer if dealer hits on soft 17
+3. Insurance
+4. Count number of hands played
+5. Feedback on Basic Strategy

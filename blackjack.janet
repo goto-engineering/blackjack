@@ -31,9 +31,12 @@
     shuffled-array))
 
 (defn generate-decks [n]
+  (print "Shuffling cards..\n")
   (let [deck @[]]
     (repeat (* n 4) (array/concat deck cards))
-    (shuffle deck)))
+    (shuffle deck)
+    (array/pop deck) # burn a card
+    deck))
 
 (defn initial-state []
   @{:bank 200
@@ -114,9 +117,7 @@
 (defn deal [state who]
   (update-in state [:hands who] |(array/push $ (array/pop (state :shoe))))
   (when (empty? (state :shoe))
-    (do
-      (print "Shuffling cards..\n")
-      (put state :shoe (generate-decks (options :decks))))))
+    (put state :shoe (generate-decks (options :decks)))))
 
 (defn hit [state]
   (deal state :player))
