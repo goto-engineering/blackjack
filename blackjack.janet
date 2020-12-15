@@ -59,10 +59,13 @@
 
 (defn check-end-conditions [state]
   (cond
-    (bust? state :player) :player-bust
-    (bust? state :dealer) :dealer-bust
+    (and
+      (blackjack? state :player)
+      (blackjack? state :dealer)) :blackjack-push
     (blackjack? state :player) :player-blackjack
     (blackjack? state :dealer) :dealer-blackjack
+    (bust? state :player) :player-bust
+    (bust? state :dealer) :dealer-bust
     false))
 
 (defn hand-over? [state]
@@ -185,6 +188,7 @@
     :dealer-bust "Dealer busts!"
     :player-blackjack "Blackjack!"
     :dealer-blackjack "Dealer Blackjack!"
+    :blackjack-push "Blackjack push!"
     :player-wins "You win!"
     :player-loses "You lose!"
     :push "Push!"))
@@ -270,6 +274,7 @@
     (print (end-message-for end-state))
     (cond
       (= end-state :push) :nothing
+      (= end-state :blackjack-push) :nothing
       (player-wins? state) (bank-win state)
       (bank-lose state)))
   (print)

@@ -27,8 +27,10 @@ Flags are explained by running with `--help`.
 
 1. Soft hands aren't always calculated correctly.
 2. Splitting is currently not implemented.
-3. No insurance.
-4. Burn card is missing after shuffle.
-5. Can't adjust Blackjack pay, fixed at 3-to-2.
-6. Can't configure dealer to hit on soft 17.
-7. Dealer Blackjack vs. Player Blackjack should be a push - and maybe configurable.
+3. Burn card is missing after shuffle.
+
+## Nice to have features
+
+1. Can't adjust Blackjack pay, fixed at 3-to-2.
+2. Can't configure dealer to hit on soft 17.
+3. Insurance.
