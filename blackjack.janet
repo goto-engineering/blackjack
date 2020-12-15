@@ -34,9 +34,9 @@
   (print "Shuffling cards..\n")
   (let [deck @[]]
     (repeat (* n 4) (array/concat deck cards))
-    (shuffle deck)
-    (array/pop deck) # burn a card
-    deck))
+    (let [shuffled-deck (shuffle deck)]
+      (array/pop shuffled-deck) # burn a card
+      shuffled-deck)))
 
 (defn initial-state []
   @{:bank 200

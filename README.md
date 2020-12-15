@@ -26,6 +26,7 @@ Flags are explained by running with `--help`.
 ## Known issues
 
 1. Splitting is currently not implemented.
+2. Can only double once per hand
 
 ## Nice to have features
 
@@ -34,3 +35,4 @@ Flags are explained by running with `--help`.
 3. Insurance
 4. Count number of hands played
 5. Feedback on Basic Strategy
+6. More concise view
