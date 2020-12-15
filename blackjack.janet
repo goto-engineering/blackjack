@@ -88,18 +88,18 @@
 (defn print-bank [state]
   (print "Bank:   $" (state :bank)))
 
-(defn total [state who]
-  (if (options :show-totals)
-    (string " (" (sum-hand (get-in state [:hands who]))")")))
+(defn total [hand]
+  (when (options :show-totals)
+    (string " (" (sum-hand hand) ")")))
 
 (defn print-hand [state]
   (print "Bet:    $" (state :bet))
-  (print "You:    " (format-player-hand state) (total state :player))
+  (print "You:    " (format-player-hand state) (total (get-in state [:hands :player])))
   (let [hand (if (hole-card-visible? state)
                (dealer-hand state)
                @[(get (dealer-hand state) 0)])]
-    (print "Dealer: " (format-dealer-hand state) (total state :dealer)))
-  (if (options :show-cards)
+    (print "Dealer: " (format-dealer-hand state) (total hand)))
+  (when (options :show-cards)
     (print "Cards:  " (length (get state :shoe))))
   (print))
 
@@ -113,7 +113,7 @@
 
 (defn deal [state who]
   (update-in state [:hands who] |(array/push $ (array/pop (state :shoe))))
-  (if (empty? (state :shoe))
+  (when (empty? (state :shoe))
     (do
       (print "Shuffling cards..\n")
       (put state :shoe (generate-decks (options :decks))))))
