@@ -25,9 +25,8 @@ Flags are explained by running with `--help`.
 
 ## Known issues
 
-1. Soft hands aren't always calculated correctly.
-2. Splitting is currently not implemented.
-3. Burn card is missing after shuffle.
+1. Splitting is currently not implemented.
+2. Burn card is missing after shuffle.
 
 ## Nice to have features
 

@@ -9,22 +9,22 @@
 
 (def cards [2 3 4 5 6 7 8 9 10 "J" "Q" "K" "A"])
 
-(defn card-value [card mode]
+(defn card-value [card]
   (cond 
-    (= card "A") (if (= mode :hard) 11 1)
+    (= card "A") 11
     (= (type card) :string) 10
     card))
 
-(defn sum-hand-mode [hand mode]
-  (->> hand
-       (map |(card-value $ mode))
-       sum))
-
 (defn sum-hand [hand]
-  (let [hard-sum (sum-hand-mode hand :hard)]
-    (if (> hard-sum 21)
-      (sum-hand-mode hand :soft)
-      hard-sum)))
+  (reduce
+    (fn [sum card]
+      (if (< (card-value card) 11)
+        (+ sum (card-value card))
+        (if (> (+ sum 11) 21)
+          (+ sum 1)
+          (+ sum 11))))
+    0
+    (sort (array/slice hand))))
 
 (defn shuffle [array]
   (let [shuffled-array @[]]
@@ -148,13 +148,14 @@
     (player-move state)))
 
 (defn validate-bet [input state]
-  (let [amount (scan-number input)]
-    (if
-      (and
-        (> amount 0)
-        (int? amount)
-        (>= (get state :bank) amount))
-      amount)))
+  (when input
+    (let [amount (scan-number input)]
+      (if
+        (and
+          (> amount 0)
+          (int? amount)
+          (>= (get state :bank) amount))
+        amount))))
 
 (defn get-bet! [state]
   (print-bank state)
