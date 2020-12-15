@@ -126,9 +126,9 @@
   (put state :stand true))
 
 (defn double [state]
-  (let [amount (get state :bet)]
-    (put state :stand true)
-    (update state :bet |(* 2 $))))
+  (update state :bet |(* 2 $))
+  (deal state :player)
+  (put state :stand true))
 
 (defn player-move [state]
   (if (get state :autobet)
@@ -222,16 +222,16 @@
     (dealer-turn state)))
 
 (defn player-wins? [state]
-  (or
-    (let [end-condition (check-end-conditions state)]
-      (or
-        (= end-condition :dealer-bust)
-        (= end-condition :player-blackjack)))
-    (and
-      (get state :stand)
-      (>
-       (sum-hand (player-hand state))
-       (sum-hand (dealer-hand state))))))
+  (let [end-condition (check-end-conditions state)]
+    (or
+      (= end-condition :dealer-bust)
+      (= end-condition :player-blackjack)
+      (and
+        (not= end-condition :player-bust)
+        (get state :stand)
+        (>
+         (sum-hand (player-hand state))
+         (sum-hand (dealer-hand state)))))))
 
 (defn check-win-conditions [state]
   (or

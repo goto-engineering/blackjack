@@ -25,11 +25,10 @@ Flags are explained by running with `--help`.
 
 ## Known issues
 
-1. Splitting is currently not implemented.
-2. Doubling down is not implemented correctly - you currently do not get a card, just stand.
-3. Soft hands aren't always calculated correctly.
-4. No insurance.
-5. Burn card is missing after shuffle.
-6. Can't adjust Blackjack pay, fixed at 3-to-2.
-7. Can't configure dealer to hit on soft 17.
-8. Dealer Blackjack vs. Player Blackjack should be a push - and maybe configurable.
+1. Soft hands aren't always calculated correctly.
+2. Splitting is currently not implemented.
+3. No insurance.
+4. Burn card is missing after shuffle.
+5. Can't adjust Blackjack pay, fixed at 3-to-2.
+6. Can't configure dealer to hit on soft 17.
+7. Dealer Blackjack vs. Player Blackjack should be a push - and maybe configurable.
