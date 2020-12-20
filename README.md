@@ -26,7 +26,6 @@ Flags are explained by running with `--help`.
 ## Known issues
 
 1. Splitting is currently not implemented.
-2. Can only double once per hand
 
 ## Nice to have features
 
