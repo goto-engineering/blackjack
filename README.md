@@ -31,8 +31,9 @@ Flags are explained by running with `--help`.
 ## Nice to have features
 
 1. Configure Blackjack payout
-2. Configer if dealer hits on soft 17
-3. Insurance
-4. Count number of hands played
-5. Feedback on Basic Strategy
-6. More concise view
+2. Configure money amount
+3. Configure if dealer hits on soft 17
+4. Insurance
+5. Count number of hands played
+6. Feedback on Basic Strategy
+7. More concise view
