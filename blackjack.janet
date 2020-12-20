@@ -1,9 +1,6 @@
 (import argparse :prefix "")
 
-(def options
-  @{:show-totals false
-    :show-cards false
-    :decks 6})
+(def options @{})
 
 (def rng (math/rng (os/time)))
 
@@ -293,12 +290,15 @@
   ["Play Blackjack in the console."
    "show-totals" {:kind :flag
                   :short "t"
+                  :default false
                   :help "Show hand totals for player and dealer."}
    "show-cards" {:kind :flag
                  :short "c"
+                  :default false
                  :help "Show numbers of cards remaining in the shoe."}
    "decks" {:kind :option
             :short "d"
+            :default "6"
             :help "Set number of decks to use."}])
 
 (defn validate-int [input]
