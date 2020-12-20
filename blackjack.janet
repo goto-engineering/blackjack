@@ -39,7 +39,7 @@
   @{:bank 200
     :bet 0
     :shoe (generate-decks (options :decks))
-    :stand false
+    :player-finished false
     :autobet nil
     :hands @{:player @[]
              :dealer @[]}})
@@ -78,7 +78,7 @@
 
 (defn hole-card-visible? [state]
   (or (hand-over? state)
-      (get state :stand)))
+      (get state :player-finished)))
 
 (defn format-dealer-hand [state]
   (if (hole-card-visible? state)
@@ -120,12 +120,12 @@
   (deal state :player))
 
 (defn stand [state]
-  (put state :stand true))
+  (put state :player-finished true))
 
 (defn double [state]
   (update state :bet |(* 2 $))
   (deal state :player)
-  (put state :stand true))
+  (put state :player-finished true))
 
 (defn player-move [state]
   (if (get state :autobet)
@@ -194,7 +194,7 @@
     (print-hand state)
     (if
       (or
-        (get state :stand)
+        (get state :player-finished)
         (hand-over? state))
       (break))))
 
@@ -227,7 +227,7 @@
       (= end-condition :player-blackjack)
       (and
         (not= end-condition :player-bust)
-        (get state :stand)
+        (get state :player-finished)
         (>
          (sum-hand (player-hand state))
          (sum-hand (dealer-hand state)))))))
@@ -244,7 +244,7 @@
 
 (defn reset-hand [state]
   (put state :bet 0)
-  (put state :stand false)
+  (put state :player-finished false)
   (put-in state [:hands :player] @[])
   (put-in state [:hands :dealer] @[]))
 
